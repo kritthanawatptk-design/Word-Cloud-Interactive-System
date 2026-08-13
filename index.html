@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CMS Word Cloud Interactive System (Cloudflare Sync Ready)</title>
+    <title>CMS Word Cloud Interactive System</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome & Google Fonts -->
@@ -52,7 +52,7 @@
 <body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col">
 
     <!-- Top Navigation Header -->
-    <header class="bg-cms-navy text-white shadow-md sticky top-0 z-40">
+    <header id="main-nav-header" class="bg-cms-navy text-white shadow-md sticky top-0 z-40">
         <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
             <div class="flex items-center space-x-3 cursor-pointer" onclick="switchView('presenter')">
                 <div class="w-10 h-10 rounded-full bg-cms-teal flex items-center justify-center font-bold text-lg text-white shadow">
@@ -60,7 +60,7 @@
                 </div>
                 <div>
                     <h1 class="text-lg font-bold leading-tight">ระบบสัมมนา CMS 2569</h1>
-                    <p class="text-xs text-cyan-200">กรมวิทยาศาสตร์การแพทย์ (Cloudflare Ready)</p>
+                    <p class="text-xs text-cyan-200">กรมวิทยาศาสตร์การแพทย์</p>
                 </div>
             </div>
 
@@ -69,14 +69,11 @@
                 <button onclick="switchView('presenter')" id="nav-presenter" class="px-3 py-1.5 rounded-lg flex items-center gap-2 transition bg-cms-teal text-white shadow">
                     <i class="fa-solid font-bold fa-tv"></i><span class="hidden sm:inline">หน้าจอเวที</span> (Presenter)
                 </button>
-                <button onclick="switchView('audience')" id="nav-audience" class="px-3 py-1.5 rounded-lg flex items-center gap-2 transition text-slate-300 hover:text-white">
-                    <i class="fa-solid fa-mobile-screen"></i><span class="hidden sm:inline">หน้าผู้ร่วมงาน</span> (Mobile)
-                </button>
                 <button onclick="switchView('admin')" id="nav-admin" class="px-3 py-1.5 rounded-lg flex items-center gap-2 transition text-slate-300 hover:text-white">
                     <i class="fa-solid fa-sliders"></i><span class="hidden sm:inline">จัดการกิจกรรม</span> (Admin)
                 </button>
                 <button onclick="switchView('data')" id="nav-data" class="px-3 py-1.5 rounded-lg flex items-center gap-2 transition text-slate-300 hover:text-white">
-                    <i class="fa-solid fa-chart-pie"></i><span class="hidden sm:inline">ข้อมูลตาราง</span> (Data)
+                    <i class="fa-solid fa-folder-tree"></i><span class="hidden sm:inline">โฟลเดอร์สรุปข้อมูล</span> (Data)
                 </button>
             </nav>
         </div>
@@ -86,25 +83,27 @@
     <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 flex flex-col">
 
         <!-- ================================================================= -->
-        <!-- VIEW 1: PRESENTER VIEW (หน้าจอใหญ่หน้าเวที) -->
+        <!-- VIEW 1: PRESENTER VIEW -->
         <!-- ================================================================= -->
         <section id="view-presenter" class="flex-1 flex flex-col space-y-4">
             
-            <!-- Event Control Bar on Top of Presenter -->
             <div class="glass-card rounded-2xl p-4 shadow-sm flex flex-wrap items-center justify-between gap-4">
                 <div class="flex items-center space-x-3">
                     <label class="text-xs font-semibold text-slate-500 uppercase tracking-wider">เลือกช่วงกิจกรรม:</label>
                     <select id="presenter-event-select" onchange="changeActiveEvent(this.value)" class="bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-sm font-bold text-cms-navy focus:ring-2 focus:ring-cms-teal outline-none">
                         <!-- Event Options -->
                     </select>
-                    <span id="cloudflare-badge" class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700 hidden">
+                    <span id="event-active-badge" class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700">
+                        ● เปิดรับคำตอบ
+                    </span>
+                    <span id="cloudflare-badge" class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-cyan-100 text-cyan-700 hidden">
                         <i class="fa-solid fa-cloud mr-1"></i>Cloud Synced
                     </span>
                 </div>
 
                 <div class="flex items-center space-x-2">
                     <button onclick="openQRModal()" class="px-3 py-1.5 bg-cms-navy hover:bg-slate-800 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow">
-                        <i class="fa-solid fa-qrcode"></i> ขยาย QR Code
+                        <i class="fa-solid fa-qrcode"></i> ขยาย QR ใหญ่
                     </button>
                     <button onclick="toggleFullscreen()" class="px-3 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg text-xs font-semibold flex items-center gap-1.5">
                         <i class="fa-solid fa-expand"></i> เต็มจอ
@@ -113,42 +112,45 @@
             </div>
 
             <!-- Stage Display Container -->
-            <div id="full-stage" class="flex-1 bg-gradient-to-br from-slate-900 via-cms-navy to-slate-900 rounded-3xl p-6 sm:p-10 shadow-2xl text-white flex flex-col justify-between relative overflow-hidden min-h-[500px]">
+            <div id="full-stage" class="flex-1 bg-gradient-to-br from-slate-900 via-cms-navy to-slate-900 rounded-3xl p-6 sm:p-10 shadow-2xl text-white flex flex-col justify-between relative overflow-hidden min-h-[520px]">
                 
-                <!-- Background Accent Elements -->
                 <div class="absolute -top-24 -left-24 w-96 h-96 bg-cms-teal/20 rounded-full blur-3xl pointer-events-none"></div>
                 <div class="absolute -bottom-24 -right-24 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
-                <!-- Header Question Box -->
-                <div class="text-center space-y-2 relative z-10">
-                    <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 text-cyan-300 text-xs sm:text-sm font-medium backdrop-blur-md">
-                        <i class="fa-solid fa-comments"></i> <span id="pres-event-title">สัมมนา CMS 2569</span>
+                <!-- Stage Header Area -->
+                <div class="flex items-start justify-between gap-4 relative z-10">
+                    <div class="space-y-2">
+                        <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 text-cyan-300 text-xs sm:text-sm font-medium backdrop-blur-md">
+                            <i class="fa-solid fa-comments"></i> <span id="pres-event-title">สัมมนา CMS 2569</span>
+                        </div>
+                        <h2 id="pres-question-display" class="text-xl sm:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white via-cyan-100 to-amber-200 leading-snug">
+                            คำถามจะแสดงที่นี่...
+                        </h2>
                     </div>
-                    <h2 id="pres-question-display" class="text-2xl sm:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white via-cyan-100 to-amber-200 leading-snug">
-                        คำถามจะแสดงที่นี่...
-                    </h2>
+
+                    <!-- Corner QR Code Box -->
+                    <div class="flex flex-col items-center bg-white/95 p-2.5 rounded-2xl shadow-xl border border-white/20 backdrop-blur-md text-slate-800 shrink-0">
+                        <div id="corner-qr-code" class="bg-white p-1 rounded-xl"></div>
+                        <div class="text-[11px] font-bold text-cms-navy mt-1.5 flex items-center gap-1">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span> สแกนตอบที่นี่
+                        </div>
+                    </div>
                 </div>
 
-                <!-- Word Cloud Center Display Stage -->
-                <div id="word-cloud-canvas" class="my-8 flex-1 flex flex-wrap items-center justify-center align-middle content-center relative z-10 px-4">
+                <!-- Word Cloud Center Stage -->
+                <div id="word-cloud-canvas" class="my-6 flex-1 flex flex-wrap items-center justify-center align-middle content-center relative z-10 px-4">
                     <p class="text-slate-400 text-sm animate-pulse"><i class="fa-solid fa-spinner fa-spin mr-2"></i>กำลังรอคำตอบจากผู้ร่วมงาน...</p>
                 </div>
 
                 <!-- Bottom Bar Stage Info -->
-                <div class="flex flex-wrap items-center justify-between gap-4 pt-6 border-t border-white/10 relative z-10 text-xs sm:text-sm">
-                    <div class="flex items-center space-x-3 bg-white/10 px-4 py-2 rounded-xl backdrop-blur-md">
-                        <div id="small-qr-code" class="bg-white p-1 rounded shadow"></div>
-                        <div>
-                            <p class="font-bold text-amber-300">สแกนร่วมส่งคำตอบ</p>
-                            <p class="text-slate-300 text-[11px]">หรือกดปุ่ม Mobile ด้านบน</p>
-                        </div>
+                <div class="flex items-center justify-between pt-4 border-t border-white/10 relative z-10 text-xs sm:text-sm">
+                    <div class="text-slate-300 text-xs">
+                        <i class="fa-solid fa-circle-info text-cyan-400 mr-1"></i> สแกน QR Code ที่มุมขวาบนเพื่อส่งคำตอบ
                     </div>
-
-                    <div class="flex items-center space-x-6">
-                        <div class="text-right">
-                            <span class="text-slate-400 block text-[11px]">ผู้ส่งคำตอบแล้ว</span>
-                            <span id="response-count-badge" class="text-xl sm:text-2xl font-black text-emerald-400">0</span> <span class="text-xs text-slate-300">รายการ</span>
-                        </div>
+                    <div>
+                        <span class="text-slate-400 text-[11px] mr-2">ผู้ส่งคำตอบแล้ว:</span>
+                        <span id="response-count-badge" class="text-xl sm:text-2xl font-black text-emerald-400">0</span> 
+                        <span class="text-xs text-slate-300"> รายการ</span>
                     </div>
                 </div>
 
@@ -156,7 +158,7 @@
         </section>
 
         <!-- ================================================================= -->
-        <!-- VIEW 2: AUDIENCE VIEW (หน้ามือถือผู้ร่วมงาน 300 คน) -->
+        <!-- VIEW 2: STRICT AUDIENCE MOBILE VIEW -->
         <!-- ================================================================= -->
         <section id="view-audience" class="hidden flex-1 max-w-md mx-auto w-full flex flex-col justify-center py-4">
             <div class="glass-card rounded-3xl p-6 sm:p-8 shadow-xl border border-slate-200/80 space-y-6">
@@ -166,9 +168,16 @@
                         <i class="fa-solid fa-paper-plane"></i>
                     </div>
                     <h3 id="aud-event-title" class="text-xs font-bold uppercase tracking-wider text-cms-teal">สัมมนา CMS 2569</h3>
-                    <h2 id="aud-question-display" class="text-lg font-bold text-cms-navy leading-snug">
-                        โหลดคำถาม...
+                    <h2 id="aud-question-display" class="text-base sm:text-lg font-bold text-cms-navy leading-snug">
+                        กำลังโหลดคำถาม...
                     </h2>
+                </div>
+
+                <!-- Locked Message (กรณีปิดกิจกรรม) -->
+                <div id="audience-locked-msg" class="hidden p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-center space-y-2">
+                    <i class="fa-solid fa-lock text-2xl text-rose-500"></i>
+                    <p class="font-bold text-sm">ช่วงกิจกรรมนี้ปิดรับคำตอบแล้ว</p>
+                    <p class="text-xs text-rose-600">ขอบคุณทุกท่านที่ร่วมแสดงความคิดเห็นครับ</p>
                 </div>
 
                 <!-- Input Form -->
@@ -177,12 +186,11 @@
                         <label for="word-input" class="block text-xs font-semibold text-slate-600 mb-1">พิมพ์คำตอบของคุณ (1-3 คำกระชับ):</label>
                         <div class="relative">
                             <input type="text" id="word-input" maxlength="25" required placeholder="เช่น พร้อมมาก, ภาคภูมิใจ..." 
-                                class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-cms-teal focus:border-cms-teal outline-none text-base font-medium text-slate-800 pr-12 shadow-sm">
-                            <span id="char-counter" class="absolute right-3 top-3.5 text-xs text-slate-400 font-mono">0/25</span>
+                                class="w-full px-4 py-3.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-cms-teal focus:border-cms-teal outline-none text-base font-medium text-slate-800 pr-12 shadow-sm">
+                            <span id="char-counter" class="absolute right-3 top-4 text-xs text-slate-400 font-mono">0/25</span>
                         </div>
                     </div>
 
-                    <!-- Quick Suggestion Chips -->
                     <div>
                         <p class="text-[11px] text-slate-500 mb-2 font-medium">คำแนะนำยอดนิยม (กดเพื่อเลือก):</p>
                         <div class="flex flex-wrap gap-1.5">
@@ -198,20 +206,22 @@
                     </button>
                 </form>
 
-                <!-- Feedback Toast inside Audience View -->
                 <div id="audience-toast" class="hidden p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs text-center space-y-1 animate-bounce">
                     <p class="font-bold text-sm"><i class="fa-circle-check fa-solid text-emerald-500 mr-1"></i> ส่งคำตอบเรียบร้อยแล้ว!</p>
                     <p class="text-emerald-600">คำตอบของคุณถูกส่งขึ้นหน้าจอใหญ่เรียบร้อยแล้วครับ</p>
+                </div>
+
+                <div class="text-center pt-2">
+                    <p class="text-[10px] text-slate-400">ระบบสัมมนา CMS 2569 • กรมวิทยาศาสตร์การแพทย์</p>
                 </div>
             </div>
         </section>
 
         <!-- ================================================================= -->
-        <!-- VIEW 3: ADMIN VIEW (จัดการหลายกิจกรรม & Cloudflare Config) -->
+        <!-- VIEW 3: ADMIN VIEW (เปิด/ปิด & ลบ กิจกรรม) -->
         <!-- ================================================================= -->
         <section id="view-admin" class="hidden space-y-6">
             
-            <!-- Cloudflare API Connection Settings Box -->
             <div class="glass-card rounded-2xl p-6 shadow-sm border-l-4 border-l-amber-500 space-y-4">
                 <div class="flex items-center justify-between">
                     <h3 class="text-base font-bold text-cms-navy flex items-center gap-2">
@@ -223,9 +233,9 @@
                     </label>
                 </div>
                 <div id="cloudflare-config-panel" class="space-y-3 pt-2">
-                    <p class="text-xs text-slate-600">วาง **Cloudflare Worker API URL** ของคุณ เพื่อเปิดใช้ Cloud Sync กับ D1 Database:</p>
+                    <p class="text-xs text-slate-600">วาง Worker API URL ของคุณเพื่อเปิดใช้ Cloud Sync กับ D1 Database:</p>
                     <div class="flex gap-2">
-                        <input type="text" id="cf-api-url" placeholder="https://cms-wordcloud-api.your-name.workers.dev" class="flex-1 px-3 py-2 border border-slate-300 rounded-lg text-xs font-mono">
+                        <input type="text" id="cf-api-url" placeholder="https://falling-salad-55b2.kritthanawat-ptk.workers.dev" class="flex-1 px-3 py-2 border border-slate-300 rounded-lg text-xs font-mono">
                         <button onclick="saveCloudflareConfig()" class="px-4 py-2 bg-cms-navy text-white text-xs font-bold rounded-lg hover:bg-slate-800">
                             บันทึกการเชื่อมต่อ
                         </button>
@@ -233,7 +243,7 @@
                 </div>
             </div>
 
-            <!-- Create / Edit Event Card -->
+            <!-- Create Event Card -->
             <div class="glass-card rounded-2xl p-6 shadow-sm space-y-4">
                 <h3 class="text-base font-bold text-cms-navy flex items-center gap-2">
                     <i class="fa-solid fa-plus-circle text-cms-teal"></i> สร้างช่วงกิจกรรมใหม่ (New Event)
@@ -255,16 +265,17 @@
                 </form>
             </div>
 
-            <!-- Events List Table -->
+            <!-- 📌 ตารางรายการกิจกรรมทั้งหมด (เพิ่มปุ่ม เปิด/ปิด และ ลบข้อมูล) -->
             <div class="glass-card rounded-2xl p-6 shadow-sm space-y-4">
                 <h3 class="text-base font-bold text-cms-navy"><i class="fa-solid fa-list-check mr-2"></i>รายการกิจกรรมทั้งหมด</h3>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-xs text-slate-600">
                         <thead class="bg-slate-100 uppercase text-[10px] font-bold text-slate-500">
                             <tr>
-                                <th class="p-3">สถานะ</th>
+                                <th class="p-3">สถานะกิจกรรม</th>
                                 <th class="p-3">ชื่อกิจกรรม</th>
                                 <th class="p-3">คำถาม</th>
+                                <th class="p-3 text-center">สวิตช์ รับคำตอบ</th>
                                 <th class="p-3 text-right">การจัดการ</th>
                             </tr>
                         </thead>
@@ -275,50 +286,71 @@
                 </div>
             </div>
 
-            <!-- Quick Controls -->
             <div class="flex flex-wrap gap-3">
                 <button onclick="seedDemoResponses()" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-xs font-bold">
-                    <i class="fa-solid fa-bolt mr-1"></i> จำลองผู้ตอบ 50 คน (Test Demo)
-                </button>
-                <button onclick="clearCurrentResponses()" class="px-4 py-2 bg-rose-500 hover:bg-rose-600 text-white rounded-lg text-xs font-bold">
-                    <i class="fa-solid fa-trash mr-1"></i> ล้างคำตอบของ Event ปัจจุบัน
+                    <i class="fa-solid fa-bolt mr-1"></i> จำลองผู้ตอบ 30 คน (Test Demo)
                 </button>
             </div>
 
         </section>
 
         <!-- ================================================================= -->
-        <!-- VIEW 4: DATA ANALYTICS VIEW -->
+        <!-- VIEW 4: DATA ANALYTICS VIEW (ระบบโฟลเดอร์แยกตามกิจกรรม) -->
         <!-- ================================================================= -->
         <section id="view-data" class="hidden space-y-6">
-            <div class="glass-card rounded-2xl p-6 shadow-sm space-y-4">
-                <div class="flex items-center justify-between">
-                    <h3 class="text-base font-bold text-cms-navy"><i class="fa-solid fa-chart-bar mr-2"></i>สรุปความถี่คำตอบ (Word Frequency Ranking)</h3>
-                    <button onclick="exportToCSV()" class="px-3 py-1.5 bg-emerald-600 text-white text-xs font-bold rounded-lg hover:bg-emerald-700">
-                        <i class="fa-solid fa-file-excel mr-1"></i> ส่งออกเป็น CSV
-                    </button>
+            
+            <div class="glass-card rounded-2xl p-6 shadow-sm space-y-6">
+                <div>
+                    <h3 class="text-base font-bold text-cms-navy flex items-center gap-2 mb-1">
+                        <i class="fa-solid fa-folder-tree text-cms-teal"></i> แฟ้มสรุปความถี่คำตอบ (Word Frequency Ranking Folders)
+                    </h3>
+                    <p class="text-xs text-slate-500">เลือกคลิกที่โฟลเดอร์กิจกรรมเพื่อดูตารางสรุปความถี่แยกตามแต่ละช่วงได้อย่างเป็นระเบียบ</p>
                 </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-xs text-slate-600">
-                        <thead class="bg-slate-100 uppercase text-[10px] font-bold text-slate-500">
-                            <tr>
-                                <th class="p-3">อันดับ</th>
-                                <th class="p-3">คำตอบ</th>
-                                <th class="p-3">จำนวนครั้ง</th>
-                                <th class="p-3">สัดส่วน (%)</th>
-                            </tr>
-                        </thead>
-                        <tbody id="data-table-body" class="divide-y divide-slate-200">
-                            <!-- Populated dynamically -->
-                        </tbody>
-                    </table>
+
+                <!-- 📁 Folder Tabs Container -->
+                <div id="data-folder-tabs" class="flex flex-wrap gap-2 border-b border-slate-200 pb-3">
+                    <!-- Dynamic Folder Buttons -->
                 </div>
+
+                <!-- Active Folder Content Box -->
+                <div class="space-y-4">
+                    <div class="flex flex-wrap items-center justify-between gap-3 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        <div>
+                            <span class="text-[10px] font-bold text-cms-teal uppercase tracking-wider block">โฟลเดอร์ที่เลือก:</span>
+                            <h4 id="selected-folder-title" class="text-sm font-bold text-cms-navy">กิจกรรม...</h4>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span id="selected-folder-count" class="px-3 py-1 bg-emerald-100 text-emerald-800 font-bold text-xs rounded-lg">0 คำตอบ</span>
+                            <button onclick="exportSelectedFolderCSV()" class="px-3 py-1.5 bg-emerald-600 text-white text-xs font-bold rounded-lg hover:bg-emerald-700 shadow">
+                                <i class="fa-solid fa-file-excel mr-1"></i> Export โฟลเดอร์นี้เป็น CSV
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Frequency Ranking Table -->
+                    <div class="overflow-x-auto border border-slate-200 rounded-xl">
+                        <table class="w-full text-left text-xs text-slate-600">
+                            <thead class="bg-slate-100 uppercase text-[10px] font-bold text-slate-500">
+                                <tr>
+                                    <th class="p-3">อันดับ</th>
+                                    <th class="p-3">คำตอบ</th>
+                                    <th class="p-3">จำนวนครั้ง (Frequency)</th>
+                                    <th class="p-3">สัดส่วน (%)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="data-table-body" class="divide-y divide-slate-200">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
             </div>
         </section>
 
     </main>
 
-    <!-- QR Code Modal -->
+    <!-- Modal QR Code -->
     <div id="qr-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl p-8 max-w-sm w-full text-center space-y-6 shadow-2xl relative">
             <button onclick="closeQRModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 text-xl font-bold">×</button>
@@ -330,14 +362,9 @@
 
     <!-- Application Script Logic -->
     <script>
-        // ---------------------------------------------------------------------
-        // ⚙️ ตั้งค่า CLOUDFLARE WORKER API URL ของคุณตรงนี้ (เพื่อไม่ต้องกรอกใหม่)
-        // ---------------------------------------------------------------------
-        const DEFAULT_CF_API_URL = "https://cms-wordcloud-api.your-subdomain.workers.dev"; // <-- วาง Worker URL ของคุณที่นี่
-
-        // Default System State
         let state = {
             activeEventId: 'event-default',
+            selectedDataFolderId: 'event-default', // สำหรับเลือกโฟลเดอร์ในหน้า Data
             events: [
                 {
                     id: 'event-default',
@@ -349,23 +376,28 @@
             responses: [],
             cloudflare: {
                 enabled: true,
-                apiUrl: DEFAULT_CF_API_URL
+                apiUrl: 'https://falling-salad-55b2.kritthanawat-ptk.workers.dev'
             }
         };
 
-        // Broadcast Channel for Multi-tab Local Sync
         const broadcast = new BroadcastChannel('cms_wordcloud_channel');
-
-        // Color Palette for Word Cloud
         const colorPalette = ['#00A3AD', '#FFB800', '#00E5FF', '#FF7043', '#AB47BC', '#26A69A', '#FFCA28', '#42A5F5'];
 
-        // Init App
         window.addEventListener('DOMContentLoaded', () => {
             loadStateFromStorage();
-            initQR();
-            renderAllViews();
+            
+            const urlParams = new URLSearchParams(window.location.search);
+            const isAudienceMode = urlParams.get('mode') === 'audience';
 
-            // Realtime Sync Listener
+            if (isAudienceMode) {
+                const navHeader = document.getElementById('main-nav-header');
+                if (navHeader) navHeader.classList.add('hidden');
+                switchView('audience');
+            } else {
+                initQRCodes();
+                renderAllViews();
+            }
+
             broadcast.onmessage = (event) => {
                 if (event.data.type === 'NEW_RESPONSE') {
                     state.responses.push(event.data.payload);
@@ -373,7 +405,6 @@
                 }
             };
 
-            // Setup input listener
             const wordInput = document.getElementById('word-input');
             if (wordInput) {
                 wordInput.addEventListener('input', (e) => {
@@ -382,7 +413,6 @@
                 });
             }
 
-            // Auto Refresh if Cloudflare is enabled
             setInterval(() => {
                 if (state.cloudflare.enabled && state.cloudflare.apiUrl) {
                     fetchResponsesFromCloud();
@@ -390,7 +420,6 @@
             }, 3000);
         });
 
-        // Save & Load Functions
         function saveStateToStorage() {
             localStorage.setItem('cms_wordcloud_state', JSON.stringify(state));
         }
@@ -398,31 +427,18 @@
         function loadStateFromStorage() {
             const saved = localStorage.getItem('cms_wordcloud_state');
             if (saved) {
-                try { 
-                    const parsed = JSON.parse(saved);
-                    state = parsed;
-                    // หากยังไม่มี apiUrl ใน storage ให้ใช้ค่า DEFAULT_CF_API_URL
-                    if (!state.cloudflare.apiUrl) {
-                        state.cloudflare.apiUrl = DEFAULT_CF_API_URL;
-                        state.cloudflare.enabled = true;
-                    }
-                } catch(e){}
-            } else {
-                // ถ้าเพิ่งเปิดใช้งานครั้งแรก ให้ใช้ค่า Default
-                state.cloudflare.apiUrl = DEFAULT_CF_API_URL;
-                state.cloudflare.enabled = true;
+                try { state = JSON.parse(saved); } catch(e){}
             }
+            if (!state.selectedDataFolderId) state.selectedDataFolderId = state.activeEventId;
             
-            // Check Cloudflare inputs
             const cfToggle = document.getElementById('toggle-cloudflare');
             const cfUrl = document.getElementById('cf-api-url');
             if (cfToggle) cfToggle.checked = state.cloudflare.enabled;
-            if (cfUrl) cfUrl.value = state.cloudflare.apiUrl || DEFAULT_CF_API_URL;
+            if (cfUrl) cfUrl.value = state.cloudflare.apiUrl || '';
             
             updateCloudflareBadge();
         }
 
-        // View Switcher
         function switchView(viewName) {
             ['presenter', 'audience', 'admin', 'data'].forEach(v => {
                 const el = document.getElementById(`view-${v}`);
@@ -443,15 +459,14 @@
             }
 
             if (viewName === 'presenter') renderWordCloud();
-            if (viewName === 'data') renderDataTable();
+            if (viewName === 'data') renderDataFolderView();
+            if (viewName === 'audience') checkAudienceLockStatus();
         }
 
-        // Render Active Event Information to Views safely
         function renderAllViews() {
             const activeEv = state.events.find(e => e.id === state.activeEventId) || state.events[0];
             if (!activeEv) return;
 
-            // Safe optional updates
             const presTitle = document.getElementById('pres-event-title');
             const presQ = document.getElementById('pres-question-display');
             const audTitle = document.getElementById('aud-event-title');
@@ -462,7 +477,6 @@
             if (audTitle) audTitle.innerText = activeEv.title;
             if (audQ) audQ.innerText = activeEv.question;
 
-            // Update Select Dropdown
             const select = document.getElementById('presenter-event-select');
             if (select) {
                 select.innerHTML = state.events.map(e => 
@@ -470,11 +484,36 @@
                 ).join('');
             }
 
+            const badge = document.getElementById('event-active-badge');
+            if (badge) {
+                if (activeEv.isActive) {
+                    badge.className = "px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700";
+                    badge.innerText = "● เปิดรับคำตอบ";
+                } else {
+                    badge.className = "px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-100 text-rose-700";
+                    badge.innerText = "● ปิดรับคำตอบแล้ว";
+                }
+            }
+
             renderEventsTable();
             renderWordCloud();
+            checkAudienceLockStatus();
         }
 
-        // Render Word Cloud Engine
+        function checkAudienceLockStatus() {
+            const activeEv = state.events.find(e => e.id === state.activeEventId) || state.events[0];
+            const form = document.getElementById('audience-form');
+            const lockedMsg = document.getElementById('audience-locked-msg');
+
+            if (activeEv && !activeEv.isActive) {
+                if (form) form.classList.add('hidden');
+                if (lockedMsg) lockedMsg.classList.remove('hidden');
+            } else {
+                if (form) form.classList.remove('hidden');
+                if (lockedMsg) lockedMsg.classList.add('hidden');
+            }
+        }
+
         function renderWordCloud() {
             const canvas = document.getElementById('word-cloud-canvas');
             if (!canvas) return;
@@ -488,7 +527,6 @@
                 return;
             }
 
-            // Word frequency calculation
             const freqs = {};
             currentResponses.forEach(r => {
                 const w = r.word.trim();
@@ -499,7 +537,6 @@
             const maxCount = sortedWords[0][1];
 
             canvas.innerHTML = sortedWords.map(([word, count], idx) => {
-                // Calculate font size dynamically (16px to 64px)
                 const fontSize = Math.min(64, Math.max(16, 16 + (count / maxCount) * 44));
                 const color = colorPalette[idx % colorPalette.length];
                 
@@ -511,9 +548,14 @@
             }).join('');
         }
 
-        // Handle Form Submission from Mobile
         async function handleAudienceSubmit(e) {
             e.preventDefault();
+            const activeEv = state.events.find(e => e.id === state.activeEventId);
+            if (activeEv && !activeEv.isActive) {
+                alert('กิจกรรมนี้ปิดรับคำตอบแล้วครับ');
+                return;
+            }
+
             const input = document.getElementById('word-input');
             const word = input.value.trim();
             if (!word) return;
@@ -525,12 +567,10 @@
                 timestamp: new Date().toISOString()
             };
 
-            // Local save
             state.responses.push(newResp);
             saveStateToStorage();
             broadcast.postMessage({ type: 'NEW_RESPONSE', payload: newResp });
 
-            // Send to Cloudflare if enabled
             if (state.cloudflare.enabled && state.cloudflare.apiUrl) {
                 try {
                     await fetch(`${state.cloudflare.apiUrl}/api/submit`, {
@@ -545,7 +585,6 @@
             const counter = document.getElementById('char-counter');
             if (counter) counter.innerText = '0/25';
 
-            // Toast animation
             const toast = document.getElementById('audience-toast');
             if (toast) {
                 toast.classList.remove('hidden');
@@ -555,7 +594,57 @@
             if (typeof confetti === 'function') confetti({ particleCount: 40, spread: 60 });
         }
 
-        // Cloudflare Settings
+        // 🔘 Toggle สลับการ เปิด/ปิด รับคำตอบของกิจกรรม
+        function toggleEventActiveStatus(eventId) {
+            const ev = state.events.find(e => e.id === eventId);
+            if (ev) {
+                ev.isActive = !ev.isActive;
+                saveStateToStorage();
+                renderAllViews();
+
+                // ซิงก์ไป Cloudflare ถ้าเปิดใช้งาน
+                if (state.cloudflare.enabled && state.cloudflare.apiUrl) {
+                    fetch(`${state.cloudflare.apiUrl}/api/events`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            id: ev.id,
+                            title: ev.title,
+                            question: ev.question,
+                            isActive: ev.isActive
+                        })
+                    }).catch(e => console.error(e));
+                }
+            }
+        }
+
+        // 🗑️ ลบกิจกรรมและคำตอบที่เกี่ยวข้อง
+        function deleteEvent(eventId) {
+            if (state.events.length <= 1) {
+                alert('ต้องมีอย่างน้อย 1 กิจกรรมในระบบครับ');
+                return;
+            }
+
+            const ev = state.events.find(e => e.id === eventId);
+            if (confirm(`คุณแน่ใจหรือไม่ว่าต้องการลบกิจกรรม "${ev.title}" และคำตอบทั้งหมด?`)) {
+                // ลบ Event และคำตอบทั้งหมด
+                state.events = state.events.filter(e => e.id !== eventId);
+                state.responses = state.responses.filter(r => r.eventId !== eventId);
+
+                if (state.activeEventId === eventId) {
+                    state.activeEventId = state.events[0].id;
+                }
+                if (state.selectedDataFolderId === eventId) {
+                    state.selectedDataFolderId = state.events[0].id;
+                }
+
+                saveStateToStorage();
+                renderAllViews();
+                renderDataFolderView();
+                alert('ลบกิจกรรมเรียบร้อยแล้วครับ');
+            }
+        }
+
         function toggleCloudflareConfig() {
             const toggle = document.getElementById('toggle-cloudflare');
             state.cloudflare.enabled = toggle ? toggle.checked : false;
@@ -571,7 +660,7 @@
             if (toggle) toggle.checked = true;
             saveStateToStorage();
             updateCloudflareBadge();
-            alert('บันทึกการตั้งค่า Cloudflare เรียบร้อยแล้ว!');
+            alert('บันทึกการเชื่อมต่อ Cloudflare เรียบร้อยแล้ว!');
             fetchResponsesFromCloud();
         }
 
@@ -592,7 +681,6 @@
                 const res = await fetch(`${state.cloudflare.apiUrl}/api/responses?eventId=${state.activeEventId}`);
                 const data = await res.json();
                 if (data.success && data.responses) {
-                    // Update state responses
                     const otherResponses = state.responses.filter(r => r.eventId !== state.activeEventId);
                     const cloudResponses = data.responses.map(r => ({
                         id: r.id,
@@ -606,7 +694,6 @@
             } catch(e){}
         }
 
-        // Helpers & Utilities
         function selectChip(text) {
             const input = document.getElementById('word-input');
             if (input) {
@@ -618,6 +705,7 @@
 
         function changeActiveEvent(id) {
             state.activeEventId = id;
+            state.selectedDataFolderId = id;
             saveStateToStorage();
             renderAllViews();
         }
@@ -636,6 +724,7 @@
 
             state.events.push(newEv);
             state.activeEventId = newEv.id;
+            state.selectedDataFolderId = newEv.id;
             saveStateToStorage();
             renderAllViews();
             alert('สร้างและเปิดใช้งาน Event ใหม่เรียบร้อยแล้ว!');
@@ -648,36 +737,115 @@
             tbody.innerHTML = state.events.map(e => `
                 <tr class="${e.id === state.activeEventId ? 'bg-cyan-50/60 font-semibold' : ''}">
                     <td class="p-3">
-                        ${e.id === state.activeEventId ? '<span class="px-2 py-0.5 bg-emerald-100 text-emerald-700 rounded-full text-[10px]">เปิดอยู่</span>' : '<span class="text-slate-400">ทั่วไป</span>'}
+                        ${e.isActive ? 
+                            '<span class="px-2.5 py-1 bg-emerald-100 text-emerald-700 font-bold rounded-full text-[10px]">● เปิดรับคำตอบ</span>' : 
+                            '<span class="px-2.5 py-1 bg-rose-100 text-rose-700 font-bold rounded-full text-[10px]">● ปิดกิจกรรม</span>'
+                        }
                     </td>
                     <td class="p-3 font-bold text-slate-800">${e.title}</td>
                     <td class="p-3 text-slate-600">${e.question}</td>
-                    <td class="p-3 text-right">
-                        <button onclick="changeActiveEvent('${e.id}')" class="px-2 py-1 bg-cms-teal text-white rounded text-[10px]">เลือก</button>
+                    <td class="p-3 text-center">
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" ${e.isActive ? 'checked' : ''} onchange="toggleEventActiveStatus('${e.id}')" class="sr-only peer">
+                            <div class="w-9 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-500"></div>
+                        </label>
+                    </td>
+                    <td class="p-3 text-right space-x-1">
+                        <button onclick="changeActiveEvent('${e.id}')" class="px-2.5 py-1 bg-cms-teal hover:bg-teal-700 text-white font-bold rounded-lg text-[10px]">เลือก</button>
+                        <button onclick="deleteEvent('${e.id}')" class="px-2 py-1 bg-rose-100 hover:bg-rose-200 text-rose-600 font-bold rounded-lg text-[10px]" title="ลบกิจกรรมนี้"><i class="fa-solid fa-trash"></i></button>
                     </td>
                 </tr>
             `).join('');
         }
 
-        function renderDataTable() {
+        // 📁 ระบบแยกโฟลเดอร์สำหรับสรุปความถี่คำตอบ (Data Folder View)
+        function renderDataFolderView() {
+            const tabsContainer = document.getElementById('data-folder-tabs');
+            const folderTitle = document.getElementById('selected-folder-title');
+            const folderCount = document.getElementById('selected-folder-count');
             const tbody = document.getElementById('data-table-body');
-            if (!tbody) return;
+            if (!tabsContainer || !tbody) return;
 
-            const currentResponses = state.responses.filter(r => r.eventId === state.activeEventId);
+            // Render Folder Tabs
+            tabsContainer.innerHTML = state.events.map(e => {
+                const isSelected = e.id === state.selectedDataFolderId;
+                const count = state.responses.filter(r => r.eventId === e.id).length;
+
+                return `
+                    <button onclick="switchDataFolder('${e.id}')" 
+                        class="px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 ${
+                            isSelected ? 'bg-cms-navy text-white shadow-md' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                        }">
+                        <i class="fa-solid ${isSelected ? 'fa-folder-open text-amber-400' : 'fa-folder text-amber-500'}"></i>
+                        <span>${e.title}</span>
+                        <span class="px-1.5 py-0.5 rounded-full text-[10px] ${isSelected ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'}">${count}</span>
+                    </button>
+                `;
+            }).join('');
+
+            // Selected Folder Data
+            const activeEv = state.events.find(e => e.id === state.selectedDataFolderId) || state.events[0];
+            if (!activeEv) return;
+
+            folderTitle.innerText = activeEv.title;
+
+            const folderResponses = state.responses.filter(r => r.eventId === activeEv.id);
+            folderCount.innerText = `${folderResponses.length} คำตอบ`;
+
             const freqs = {};
-            currentResponses.forEach(r => freqs[r.word] = (freqs[r.word] || 0) + 1);
+            folderResponses.forEach(r => freqs[r.word] = (freqs[r.word] || 0) + 1);
 
-            const total = currentResponses.length || 1;
+            const total = folderResponses.length || 1;
             const sorted = Object.entries(freqs).sort((a,b) => b[1] - a[1]);
 
+            if (sorted.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-slate-400 font-medium">ยังไม่มีคำตอบในโฟลเดอร์กิจกรรมนี้</td></tr>`;
+                return;
+            }
+
             tbody.innerHTML = sorted.map(([word, count], idx) => `
-                <tr>
-                    <td class="p-3 font-bold">${idx + 1}</td>
+                <tr class="hover:bg-slate-50 transition">
+                    <td class="p-3 font-bold text-slate-500">${idx + 1}</td>
                     <td class="p-3 font-bold text-cms-navy">${word}</td>
-                    <td class="p-3">${count}</td>
-                    <td class="p-3 font-mono">${((count / total) * 100).toFixed(1)}%</td>
+                    <td class="p-3 font-semibold text-emerald-600">${count} ครั้ง</td>
+                    <td class="p-3 font-mono text-slate-500">${((count / total) * 100).toFixed(1)}%</td>
                 </tr>
             `).join('');
+        }
+
+        function switchDataFolder(eventId) {
+            state.selectedDataFolderId = eventId;
+            renderDataFolderView();
+        }
+
+        function exportSelectedFolderCSV() {
+            const activeEv = state.events.find(e => e.id === state.selectedDataFolderId);
+            if (!activeEv) return;
+
+            const folderResponses = state.responses.filter(r => r.eventId === activeEv.id);
+            const freqs = {};
+            folderResponses.forEach(r => freqs[r.word] = (freqs[r.word] || 0) + 1);
+
+            let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
+            csvContent += `กิจกรรม: ${activeEv.title}\n`;
+            csvContent += `คำถาม: ${activeEv.question}\n\n`;
+            csvContent += "อันดับ,คำตอบ,จำนวนครั้ง,สัดส่วน(%)\n";
+
+            const total = folderResponses.length || 1;
+            const sorted = Object.entries(freqs).sort((a,b) => b[1] - a[1]);
+
+            sorted.forEach(([word, count], idx) => {
+                const pct = ((count / total) * 100).toFixed(1);
+                csvContent += `${idx + 1},"${word}",${count},${pct}%\n`;
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `CMS_WordCloud_${activeEv.title}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
 
         function seedDemoResponses() {
@@ -693,27 +861,28 @@
             }
             saveStateToStorage();
             renderWordCloud();
+            renderDataFolderView();
         }
 
-        function clearCurrentResponses() {
-            if (confirm('ยืนยันการล้างคำตอบทั้งหมดของกิจกรรมนี้?')) {
-                state.responses = state.responses.filter(r => r.eventId !== state.activeEventId);
-                saveStateToStorage();
-                renderWordCloud();
+        function initQRCodes() {
+            const cornerBox = document.getElementById('corner-qr-code');
+            const modalBox = document.getElementById('modal-qr-container');
+            
+            const baseUrl = window.location.origin + window.location.pathname;
+            const audienceUrl = `${baseUrl}?mode=audience`;
+
+            if (cornerBox) { 
+                cornerBox.innerHTML = ''; 
+                new QRCode(cornerBox, { text: audienceUrl, width: 72, height: 72 }); 
+            }
+            if (modalBox) { 
+                modalBox.innerHTML = ''; 
+                new QRCode(modalBox, { text: audienceUrl, width: 220, height: 220 }); 
             }
         }
 
-        function initQR() {
-            const smallBox = document.getElementById('small-qr-code');
-            const modalBox = document.getElementById('modal-qr-container');
-            const currentUrl = window.location.href;
-
-            if (smallBox) { smallBox.innerHTML = ''; new QRCode(smallBox, { text: currentUrl, width: 48, height: 48 }); }
-            if (modalBox) { modalBox.innerHTML = ''; new QRCode(modalBox, { text: currentUrl, width: 220, height: 220 }); }
-        }
-
         function openQRModal() {
-            initQR();
+            initQRCodes();
             const modal = document.getElementById('qr-modal');
             if (modal) modal.classList.remove('hidden');
         }
