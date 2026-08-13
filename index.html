@@ -8,7 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome & Google Fonts -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- QR Code Generator -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <!-- Canvas Confetti -->
@@ -34,14 +34,29 @@
     </script>
     <style>
         body { font-family: 'Sarabun', sans-serif; }
+        
+        /* 🎨 สไตล์ Word Cloud แบบสุ่ม สนุกสนาน มีมิติ */
         .word-cloud-item {
-            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             display: inline-block;
-            margin: 6px 12px;
             cursor: pointer;
             user-select: none;
+            line-height: 1.1;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+            animation: popIn 0.5s ease-out forwards;
         }
-        .word-cloud-item:hover { transform: scale(1.15) rotate(-2deg); z-index: 20; }
+        .word-cloud-item:hover { 
+            transform: scale(1.3) rotate(0deg) !important; 
+            z-index: 50; 
+            filter: drop-shadow(0 10px 20px rgba(0,229,255,0.6));
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0) rotate(-20deg); opacity: 0; }
+            80% { transform: scale(1.1); }
+            100% { opacity: 1; }
+        }
+
         .glass-card {
             background: rgba(255, 255, 255, 0.92);
             backdrop-filter: blur(10px);
@@ -103,7 +118,7 @@
 
                 <div class="flex items-center space-x-2">
                     <button onclick="openQRModal()" class="px-3 py-1.5 bg-cms-navy hover:bg-slate-800 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow">
-                        <i class="fa-solid fa-qrcode"></i> ขยาย QR ใหญ่
+                        <i class="fa-solid fa-qrcode"></i> ขยายป๊อปอัป QR
                     </button>
                     <button onclick="toggleFullscreen()" class="px-3 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg text-xs font-semibold flex items-center gap-1.5">
                         <i class="fa-solid fa-expand"></i> เต็มจอ
@@ -112,44 +127,48 @@
             </div>
 
             <!-- Stage Display Container -->
-            <div id="full-stage" class="flex-1 bg-gradient-to-br from-slate-900 via-cms-navy to-slate-900 rounded-3xl p-6 sm:p-10 shadow-2xl text-white flex flex-col justify-between relative overflow-hidden min-h-[520px]">
+            <div id="full-stage" class="flex-1 bg-gradient-to-br from-slate-900 via-cms-navy to-slate-900 rounded-3xl p-6 sm:p-8 shadow-2xl text-white flex flex-col justify-between relative overflow-hidden min-h-[580px]">
                 
                 <div class="absolute -top-24 -left-24 w-96 h-96 bg-cms-teal/20 rounded-full blur-3xl pointer-events-none"></div>
                 <div class="absolute -bottom-24 -right-24 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
                 <!-- Stage Header Area -->
-                <div class="flex items-start justify-between gap-4 relative z-10">
-                    <div class="space-y-2">
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-start relative z-10">
+                    
+                    <div class="md:col-span-8 space-y-3">
                         <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 text-cyan-300 text-xs sm:text-sm font-medium backdrop-blur-md">
                             <i class="fa-solid fa-comments"></i> <span id="pres-event-title">สัมมนา CMS 2569</span>
                         </div>
-                        <h2 id="pres-question-display" class="text-xl sm:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white via-cyan-100 to-amber-200 leading-snug">
+                        <h2 id="pres-question-display" class="text-2xl sm:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white via-cyan-100 to-amber-200 leading-snug">
                             คำถามจะแสดงที่นี่...
                         </h2>
                     </div>
 
-                    <!-- Corner QR Code Box -->
-                    <div class="flex flex-col items-center bg-white/95 p-2.5 rounded-2xl shadow-xl border border-white/20 backdrop-blur-md text-slate-800 shrink-0">
-                        <div id="corner-qr-code" class="bg-white p-1 rounded-xl"></div>
-                        <div class="text-[11px] font-bold text-cms-navy mt-1.5 flex items-center gap-1">
-                            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span> สแกนตอบที่นี่
+                    <div class="md:col-span-4 flex justify-end">
+                        <div class="bg-white/95 p-4 rounded-3xl shadow-2xl border-2 border-white/40 backdrop-blur-md text-slate-800 flex flex-col items-center justify-center w-full max-w-[240px]">
+                            <div id="corner-qr-code" class="bg-white p-2 rounded-2xl flex justify-center items-center"></div>
+                            <div class="text-sm font-extrabold text-cms-navy mt-3 flex items-center justify-center gap-2 w-full bg-slate-100 py-1.5 px-3 rounded-xl border border-slate-200">
+                                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping shrink-0"></span> 
+                                <span>สแกนตอบที่นี่</span>
+                            </div>
                         </div>
                     </div>
+
                 </div>
 
-                <!-- Word Cloud Center Stage -->
-                <div id="word-cloud-canvas" class="my-6 flex-1 flex flex-wrap items-center justify-center align-middle content-center relative z-10 px-4">
+                <!-- 🎈 Word Cloud Center Stage (ปรับให้จัดวางแบบสุ่ม สนุกสนาน) -->
+                <div id="word-cloud-canvas" class="my-4 flex-1 flex flex-wrap items-center justify-center align-middle content-center relative z-10 px-4 py-6 gap-3 sm:gap-6 overflow-hidden">
                     <p class="text-slate-400 text-sm animate-pulse"><i class="fa-solid fa-spinner fa-spin mr-2"></i>กำลังรอคำตอบจากผู้ร่วมงาน...</p>
                 </div>
 
                 <!-- Bottom Bar Stage Info -->
                 <div class="flex items-center justify-between pt-4 border-t border-white/10 relative z-10 text-xs sm:text-sm">
-                    <div class="text-slate-300 text-xs">
-                        <i class="fa-solid fa-circle-info text-cyan-400 mr-1"></i> สแกน QR Code ที่มุมขวาบนเพื่อส่งคำตอบ
+                    <div class="text-slate-300 text-xs flex items-center gap-1.5">
+                        <i class="fa-solid fa-circle-info text-cyan-400 text-sm"></i> สแกน QR Code ช่องมุมขวาบนเพื่อส่งคำตอบ
                     </div>
                     <div>
                         <span class="text-slate-400 text-[11px] mr-2">ผู้ส่งคำตอบแล้ว:</span>
-                        <span id="response-count-badge" class="text-xl sm:text-2xl font-black text-emerald-400">0</span> 
+                        <span id="response-count-badge" class="text-2xl sm:text-3xl font-black text-emerald-400">0</span> 
                         <span class="text-xs text-slate-300"> รายการ</span>
                     </div>
                 </div>
@@ -173,14 +192,12 @@
                     </h2>
                 </div>
 
-                <!-- Locked Message (กรณีปิดกิจกรรม) -->
                 <div id="audience-locked-msg" class="hidden p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-center space-y-2">
                     <i class="fa-solid fa-lock text-2xl text-rose-500"></i>
                     <p class="font-bold text-sm">ช่วงกิจกรรมนี้ปิดรับคำตอบแล้ว</p>
                     <p class="text-xs text-rose-600">ขอบคุณทุกท่านที่ร่วมแสดงความคิดเห็นครับ</p>
                 </div>
 
-                <!-- Input Form -->
                 <form id="audience-form" onsubmit="handleAudienceSubmit(event)" class="space-y-4">
                     <div>
                         <label for="word-input" class="block text-xs font-semibold text-slate-600 mb-1">พิมพ์คำตอบของคุณ (1-3 คำกระชับ):</label>
@@ -218,7 +235,7 @@
         </section>
 
         <!-- ================================================================= -->
-        <!-- VIEW 3: ADMIN VIEW (เปิด/ปิด & ลบ กิจกรรม) -->
+        <!-- VIEW 3: ADMIN VIEW -->
         <!-- ================================================================= -->
         <section id="view-admin" class="hidden space-y-6">
             
@@ -265,7 +282,7 @@
                 </form>
             </div>
 
-            <!-- 📌 ตารางรายการกิจกรรมทั้งหมด (เพิ่มปุ่ม เปิด/ปิด และ ลบข้อมูล) -->
+            <!-- รายการกิจกรรมทั้งหมด -->
             <div class="glass-card rounded-2xl p-6 shadow-sm space-y-4">
                 <h3 class="text-base font-bold text-cms-navy"><i class="fa-solid fa-list-check mr-2"></i>รายการกิจกรรมทั้งหมด</h3>
                 <div class="overflow-x-auto">
@@ -295,7 +312,7 @@
         </section>
 
         <!-- ================================================================= -->
-        <!-- VIEW 4: DATA ANALYTICS VIEW (ระบบโฟลเดอร์แยกตามกิจกรรม) -->
+        <!-- VIEW 4: DATA ANALYTICS VIEW -->
         <!-- ================================================================= -->
         <section id="view-data" class="hidden space-y-6">
             
@@ -307,12 +324,10 @@
                     <p class="text-xs text-slate-500">เลือกคลิกที่โฟลเดอร์กิจกรรมเพื่อดูตารางสรุปความถี่แยกตามแต่ละช่วงได้อย่างเป็นระเบียบ</p>
                 </div>
 
-                <!-- 📁 Folder Tabs Container -->
                 <div id="data-folder-tabs" class="flex flex-wrap gap-2 border-b border-slate-200 pb-3">
                     <!-- Dynamic Folder Buttons -->
                 </div>
 
-                <!-- Active Folder Content Box -->
                 <div class="space-y-4">
                     <div class="flex flex-wrap items-center justify-between gap-3 bg-slate-50 p-4 rounded-xl border border-slate-200">
                         <div>
@@ -327,7 +342,6 @@
                         </div>
                     </div>
 
-                    <!-- Frequency Ranking Table -->
                     <div class="overflow-x-auto border border-slate-200 rounded-xl">
                         <table class="w-full text-left text-xs text-slate-600">
                             <thead class="bg-slate-100 uppercase text-[10px] font-bold text-slate-500">
@@ -364,7 +378,7 @@
     <script>
         let state = {
             activeEventId: 'event-default',
-            selectedDataFolderId: 'event-default', // สำหรับเลือกโฟลเดอร์ในหน้า Data
+            selectedDataFolderId: 'event-default',
             events: [
                 {
                     id: 'event-default',
@@ -381,7 +395,15 @@
         };
 
         const broadcast = new BroadcastChannel('cms_wordcloud_channel');
-        const colorPalette = ['#00A3AD', '#FFB800', '#00E5FF', '#FF7043', '#AB47BC', '#26A69A', '#FFCA28', '#42A5F5'];
+        
+        // 🎨 จานสีนีออน/สดใสสำหรับงานบนจอใหญ่
+        const colorPalette = [
+            '#00E5FF', '#FFB800', '#FF4081', '#00E676', 
+            '#E040FB', '#FF9100', '#76FF03', '#18FFFF'
+        ];
+
+        // 🎲 อาเรย์มุมเอียงสุ่มเพื่อสร้างไดนามิก
+        const rotations = [-12, -8, -4, 0, 4, 8, 12, -15, 15];
 
         window.addEventListener('DOMContentLoaded', () => {
             loadStateFromStorage();
@@ -514,6 +536,7 @@
             }
         }
 
+        // 🎈 ปรับอัลกอริทึมการแสดงผล Word Cloud ให้สุ่มขนาด สุ่มมุมเอียง และดูซ้อนกันสนุกสนาน
         function renderWordCloud() {
             const canvas = document.getElementById('word-cloud-canvas');
             if (!canvas) return;
@@ -533,15 +556,35 @@
                 freqs[w] = (freqs[w] || 0) + 1;
             });
 
+            // สลับเรียงคำตอบให้คละกันอย่างเป็นธรรมชาติ (Shuffle)
             const sortedWords = Object.entries(freqs).sort((a,b) => b[1] - a[1]);
             const maxCount = sortedWords[0][1];
 
-            canvas.innerHTML = sortedWords.map(([word, count], idx) => {
-                const fontSize = Math.min(64, Math.max(16, 16 + (count / maxCount) * 44));
-                const color = colorPalette[idx % colorPalette.length];
+            // สลับตำแหน่งการวางคำตอบ (Interleave/Shuffle) เพื่อให้คำใหญ่กระจายทั่วจอ ไม่กองที่จุดเดียว
+            const shuffledWords = [...sortedWords];
+            for (let i = shuffledWords.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffledWords[i], shuffledWords[j]] = [shuffledWords[j], shuffledWords[i]];
+            }
+
+            canvas.innerHTML = shuffledWords.map(([word, count], idx) => {
+                // คำนวณขนาด Font ยืดหยุ่นตั้งแต่ 22px ถึง 76px
+                const fontSize = Math.min(76, Math.max(22, 22 + (count / maxCount) * 54));
                 
+                // สุ่มสี มุมเอียง และ Padding/Margin แบบมีไดนามิก
+                const color = colorPalette[idx % colorPalette.length];
+                const rotation = rotations[idx % rotations.length];
+                const marginY = Math.floor(Math.random() * 8) + 2;
+                const marginX = Math.floor(Math.random() * 12) + 6;
+                const fontWeight = count === maxCount ? '800' : (fontSize > 40 ? '700' : '600');
+
                 return `
-                    <span class="word-cloud-item font-extrabold" style="font-size: ${fontSize}px; color: ${color};">
+                    <span class="word-cloud-item font-extrabold" 
+                          style="font-size: ${fontSize}px; 
+                                 color: ${color}; 
+                                 transform: rotate(${rotation}deg); 
+                                 margin: ${marginY}px ${marginX}px;
+                                 font-weight: ${fontWeight};">
                         ${word}
                     </span>
                 `;
@@ -594,7 +637,6 @@
             if (typeof confetti === 'function') confetti({ particleCount: 40, spread: 60 });
         }
 
-        // 🔘 Toggle สลับการ เปิด/ปิด รับคำตอบของกิจกรรม
         function toggleEventActiveStatus(eventId) {
             const ev = state.events.find(e => e.id === eventId);
             if (ev) {
@@ -602,7 +644,6 @@
                 saveStateToStorage();
                 renderAllViews();
 
-                // ซิงก์ไป Cloudflare ถ้าเปิดใช้งาน
                 if (state.cloudflare.enabled && state.cloudflare.apiUrl) {
                     fetch(`${state.cloudflare.apiUrl}/api/events`, {
                         method: 'POST',
@@ -618,7 +659,6 @@
             }
         }
 
-        // 🗑️ ลบกิจกรรมและคำตอบที่เกี่ยวข้อง
         function deleteEvent(eventId) {
             if (state.events.length <= 1) {
                 alert('ต้องมีอย่างน้อย 1 กิจกรรมในระบบครับ');
@@ -627,7 +667,6 @@
 
             const ev = state.events.find(e => e.id === eventId);
             if (confirm(`คุณแน่ใจหรือไม่ว่าต้องการลบกิจกรรม "${ev.title}" และคำตอบทั้งหมด?`)) {
-                // ลบ Event และคำตอบทั้งหมด
                 state.events = state.events.filter(e => e.id !== eventId);
                 state.responses = state.responses.filter(r => r.eventId !== eventId);
 
@@ -708,6 +747,7 @@
             state.selectedDataFolderId = id;
             saveStateToStorage();
             renderAllViews();
+            initQRCodes();
         }
 
         function createNewEvent(e) {
@@ -727,6 +767,7 @@
             state.selectedDataFolderId = newEv.id;
             saveStateToStorage();
             renderAllViews();
+            initQRCodes();
             alert('สร้างและเปิดใช้งาน Event ใหม่เรียบร้อยแล้ว!');
         }
 
@@ -758,7 +799,6 @@
             `).join('');
         }
 
-        // 📁 ระบบแยกโฟลเดอร์สำหรับสรุปความถี่คำตอบ (Data Folder View)
         function renderDataFolderView() {
             const tabsContainer = document.getElementById('data-folder-tabs');
             const folderTitle = document.getElementById('selected-folder-title');
@@ -766,7 +806,6 @@
             const tbody = document.getElementById('data-table-body');
             if (!tabsContainer || !tbody) return;
 
-            // Render Folder Tabs
             tabsContainer.innerHTML = state.events.map(e => {
                 const isSelected = e.id === state.selectedDataFolderId;
                 const count = state.responses.filter(r => r.eventId === e.id).length;
@@ -783,7 +822,6 @@
                 `;
             }).join('');
 
-            // Selected Folder Data
             const activeEv = state.events.find(e => e.id === state.selectedDataFolderId) || state.events[0];
             if (!activeEv) return;
 
@@ -873,7 +911,7 @@
 
             if (cornerBox) { 
                 cornerBox.innerHTML = ''; 
-                new QRCode(cornerBox, { text: audienceUrl, width: 72, height: 72 }); 
+                new QRCode(cornerBox, { text: audienceUrl, width: 180, height: 180 }); 
             }
             if (modalBox) { 
                 modalBox.innerHTML = ''; 
