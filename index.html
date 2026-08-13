@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CMS Word Cloud Interactive System (Local Mode)</title>
+    <title>CMS Word Cloud Interactive System - Pro Version</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome & Google Fonts -->
@@ -36,7 +36,7 @@
         body { font-family: 'Sarabun', sans-serif; }
         
         .word-cloud-item {
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             display: inline-block;
             cursor: pointer;
             user-select: none;
@@ -47,7 +47,17 @@
         .word-cloud-item:hover { 
             transform: scale(1.3) rotate(0deg) !important; 
             z-index: 50; 
-            filter: drop-shadow(0 10px 20px rgba(0,229,255,0.6));
+            filter: drop-shadow(0 10px 20px rgba(0,229,255,0.8));
+        }
+
+        /* Glow effect สำหรับคำที่เพิ่งเข้ามาใหม่ */
+        .new-word-glow {
+            animation: glowPulse 2s infinite alternate, popIn 0.5s ease-out forwards;
+        }
+
+        @keyframes glowPulse {
+            0% { filter: drop-shadow(0 0 5px #00E5FF); transform: scale(1.05); }
+            100% { filter: drop-shadow(0 0 20px #FFB800); transform: scale(1.15); }
         }
 
         @keyframes popIn {
@@ -78,7 +88,6 @@
                 </div>
             </div>
 
-            <!-- View Switcher Tabs -->
             <nav class="flex items-center bg-slate-800/60 p-1 rounded-xl text-xs sm:text-sm font-medium">
                 <button onclick="switchView('presenter')" id="nav-presenter" class="px-3 py-1.5 rounded-lg flex items-center gap-2 transition bg-cms-teal text-white shadow">
                     <i class="fa-solid font-bold fa-tv"></i><span class="hidden sm:inline">หน้าจอเวที</span> (Presenter)
@@ -87,13 +96,12 @@
                     <i class="fa-solid fa-sliders"></i><span class="hidden sm:inline">จัดการกิจกรรม</span> (Admin)
                 </button>
                 <button onclick="switchView('data')" id="nav-data" class="px-3 py-1.5 rounded-lg flex items-center gap-2 transition text-slate-300 hover:text-white">
-                    <i class="fa-solid fa-folder-tree"></i><span class="hidden sm:inline">โฟลเดอร์สรุปข้อมูล</span> (Data)
+                    <i class="fa-solid fa-folder-tree"></i><span class="hidden sm:inline">สรุปข้อมูล</span> (Data)
                 </button>
             </nav>
         </div>
     </header>
 
-    <!-- Main Content Container -->
     <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 flex flex-col">
 
         <!-- VIEW 1: PRESENTER VIEW -->
@@ -103,11 +111,13 @@
                     <label class="text-xs font-semibold text-slate-500 uppercase tracking-wider">เลือกช่วงกิจกรรม:</label>
                     <select id="presenter-event-select" onchange="changeActiveEvent(this.value)" class="bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-sm font-bold text-cms-navy focus:ring-2 focus:ring-cms-teal outline-none">
                     </select>
-                    <span id="event-active-badge" class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700">
-                        ● เปิดรับคำตอบ
+                    
+                    <!-- Status Badges -->
+                    <span id="cloudflare-badge" class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700 flex items-center gap-1">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> ☁️ Cloud Synced
                     </span>
-                    <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-200 text-slate-700">
-                        ⚡ Local High-Speed
+                    <span id="offline-badge" class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-100 text-rose-700 hidden flex items-center gap-1">
+                        <i class="fa-solid fa-triangle-exclamation"></i> Offline (กำลังพยายามเชื่อมต่อใหม่...)
                     </span>
                 </div>
 
@@ -165,7 +175,7 @@
             </div>
         </section>
 
-        <!-- VIEW 2: MOBILE AUDIENCE VIEW -->
+        <!-- VIEW 2: AUDIENCE VIEW -->
         <section id="view-audience" class="hidden flex-1 max-w-md mx-auto w-full flex flex-col justify-center py-4">
             <div class="glass-card rounded-3xl p-6 sm:p-8 shadow-xl border border-slate-200/80 space-y-6">
                 <div class="text-center space-y-2">
@@ -176,11 +186,6 @@
                     <h2 id="aud-question-display" class="text-base sm:text-lg font-bold text-cms-navy leading-snug">
                         กำลังโหลดคำถาม...
                     </h2>
-                </div>
-
-                <div id="audience-locked-msg" class="hidden p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-center space-y-2">
-                    <i class="fa-solid fa-lock text-2xl text-rose-500"></i>
-                    <p class="font-bold text-sm">ช่วงกิจกรรมนี้ปิดรับคำตอบแล้ว</p>
                 </div>
 
                 <form id="audience-form" onsubmit="handleAudienceSubmit(event)" class="space-y-4">
@@ -203,7 +208,7 @@
                         </div>
                     </div>
 
-                    <button type="submit" id="submit-btn" class="w-full py-3.5 bg-gradient-to-r from-cms-teal to-teal-600 hover:from-teal-600 hover:to-cms-navy text-white font-bold rounded-xl shadow-lg transition transform active:scale-95 flex items-center justify-center gap-2">
+                    <button type="submit" id="submit-btn" class="w-full py-3.5 bg-gradient-to-r from-cms-teal to-teal-600 text-white font-bold rounded-xl shadow-lg transition transform active:scale-95 flex items-center justify-center gap-2">
                         <i class="fa-solid fa-paper-plane"></i> ส่งคำตอบขึ้นจอใหญ่
                     </button>
                 </form>
@@ -216,9 +221,43 @@
 
         <!-- VIEW 3: ADMIN VIEW -->
         <section id="view-admin" class="hidden space-y-6">
-            <div class="glass-card rounded-2xl p-6 shadow-sm border-l-4 border-l-slate-400 space-y-2">
-                <h3 class="text-base font-bold text-cms-navy"><i class="fa-solid fa-bolt text-amber-500 mr-2"></i>โหมดการทำงานปัจจุบัน: Local Mode (High-Speed)</h3>
-                <p class="text-xs text-slate-600">ระบบทำงานผ่าน Local Storage และ Broadcast Channel โดยตรง ไม่ต้องเชื่อมต่อ Cloudflare D1 ช่วยให้การรับส่งข้อมูลบนเวทีรวดเร็วทันใจ ไร้ความล่าช้า</p>
+            <div class="glass-card rounded-2xl p-6 shadow-sm border-l-4 border-l-amber-500 space-y-4">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-base font-bold text-cms-navy flex items-center gap-2">
+                        <i class="fa-solid fa-cloud text-amber-500"></i> ตั้งค่าการเชื่อมต่อ Cloudflare D1 Database
+                    </h3>
+                </div>
+                <div class="space-y-3 pt-2">
+                    <div class="flex gap-2">
+                        <input type="text" id="cf-api-url" placeholder="https://wispy-waterfall-f152.kritthanawat-ptk.workers.dev" class="flex-1 px-3 py-2 border border-slate-300 rounded-lg text-xs font-mono">
+                        <button onclick="saveCloudflareConfig()" class="px-4 py-2 bg-cms-navy text-white text-xs font-bold rounded-lg hover:bg-slate-800">
+                            บันทึกการเชื่อมต่อ
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Manage Event Card -->
+            <div class="glass-card rounded-2xl p-6 shadow-sm space-y-4">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-base font-bold text-cms-navy"><i class="fa-solid fa-list-check mr-2"></i>จัดการกิจกรรมและข้อมูล</h3>
+                    <button onclick="clearCurrentResponses()" class="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-lg text-xs flex items-center gap-1.5 shadow">
+                        <i class="fa-solid fa-trash-can"></i> 🧹 ล้างคำตอบทั้งหมดของกิจกรรมนี้
+                    </button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs text-slate-600">
+                        <thead class="bg-slate-100 uppercase text-[10px] font-bold text-slate-500">
+                            <tr>
+                                <th class="p-3">สถานะ</th>
+                                <th class="p-3">ชื่อกิจกรรม</th>
+                                <th class="p-3">คำถาม</th>
+                                <th class="p-3 text-right">การจัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="events-table-body" class="divide-y divide-slate-200"></tbody>
+                    </table>
+                </div>
             </div>
 
             <div class="glass-card rounded-2xl p-6 shadow-sm space-y-4">
@@ -233,34 +272,12 @@
                         <input type="text" id="new-event-question" required placeholder="เช่น คำสั้นๆ สำหรับขับเคลื่อน CMS..." class="w-full px-3 py-2 border rounded-lg text-sm">
                     </div>
                     <div class="sm:col-span-2 flex justify-end">
-                        <button type="submit" class="px-5 py-2.5 bg-cms-teal hover:bg-teal-700 text-white font-bold rounded-xl text-xs shadow">
+                        <button type="submit" class="px-5 py-2.5 bg-cms-teal text-white font-bold rounded-xl text-xs shadow">
                             <i class="fa-solid fa-save mr-1"></i> บันทึกกิจกรรมใหม่
                         </button>
                     </div>
                 </form>
             </div>
-
-            <div class="glass-card rounded-2xl p-6 shadow-sm space-y-4">
-                <h3 class="text-base font-bold text-cms-navy"><i class="fa-solid fa-list-check mr-2"></i>รายการกิจกรรมทั้งหมด</h3>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-xs text-slate-600">
-                        <thead class="bg-slate-100 uppercase text-[10px] font-bold text-slate-500">
-                            <tr>
-                                <th class="p-3">สถานะ</th>
-                                <th class="p-3">ชื่อกิจกรรม</th>
-                                <th class="p-3">คำถาม</th>
-                                <th class="p-3 text-center">รับคำตอบ</th>
-                                <th class="p-3 text-right">การจัดการ</th>
-                            </tr>
-                        </thead>
-                        <tbody id="events-table-body" class="divide-y divide-slate-200"></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <button onclick="seedDemoResponses()" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-xs font-bold shadow">
-                <i class="fa-solid fa-bolt mr-1"></i> จำลองผู้ตอบ 30 คน (Test Demo)
-            </button>
         </section>
 
         <!-- VIEW 4: DATA ANALYTICS VIEW -->
@@ -271,9 +288,7 @@
                         <i class="fa-solid fa-folder-tree text-cms-teal"></i> แฟ้มสรุปความถี่คำตอบ (Word Frequency Ranking)
                     </h3>
                 </div>
-
                 <div id="data-folder-tabs" class="flex flex-wrap gap-2 border-b border-slate-200 pb-3"></div>
-
                 <div class="space-y-4">
                     <div class="flex flex-wrap items-center justify-between gap-3 bg-slate-50 p-4 rounded-xl border border-slate-200">
                         <div>
@@ -287,7 +302,6 @@
                             </button>
                         </div>
                     </div>
-
                     <div class="overflow-x-auto border border-slate-200 rounded-xl">
                         <table class="w-full text-left text-xs text-slate-600">
                             <thead class="bg-slate-100 uppercase text-[10px] font-bold text-slate-500">
@@ -316,7 +330,7 @@
         </div>
     </div>
 
-    <!-- Application Script Logic -->
+    <!-- Script Logic -->
     <script>
         let state = {
             activeEventId: 'event-default',
@@ -329,11 +343,17 @@
                     isActive: true
                 }
             ],
-            responses: []
+            responses: [],
+            lastResponseIds: new Set(),
+            cloudflare: {
+                enabled: true,
+                apiUrl: 'https://wispy-waterfall-f152.kritthanawat-ptk.workers.dev'
+            }
         };
 
-        const broadcast = new BroadcastChannel('cms_wordcloud_channel');
-        
+        // รายการคำหยาบ/ไม่เหมาะสม (Profanity Blacklist Filter)
+        const profanityList = ['ควย', 'ส้นตีน', 'เย็ด', 'เหี้ย', 'สาด', 'เชี่ย', 'มึง', 'กู', 'fuck', 'shit', 'bitch'];
+
         const colorPalette = ['#00E5FF', '#FFB800', '#FF4081', '#00E676', '#E040FB', '#FF9100', '#76FF03', '#18FFFF'];
         const rotations = [-12, -8, -4, 0, 4, 8, 12, -15, 15];
 
@@ -352,30 +372,12 @@
                 renderAllViews();
             }
 
-            // Sync ผ่าน BroadcastChannel (เรียลไทม์ทันที)
-            broadcast.onmessage = (event) => {
-                if (event.data.type === 'NEW_RESPONSE') {
-                    state.responses.push(event.data.payload);
-                    saveStateToStorage();
-                    renderWordCloud();
+            // Auto-fetch ข้อมูลจากคลาวด์ทุกๆ 2 วินาที
+            setInterval(() => {
+                if (state.cloudflare.enabled && state.cloudflare.apiUrl) {
+                    fetchResponsesFromCloud();
                 }
-            };
-
-            // Sync ผ่าน LocalStorage Event (สำหรับข้าม Tab/Window)
-            window.addEventListener('storage', (e) => {
-                if (e.key === 'cms_wordcloud_state') {
-                    loadStateFromStorage();
-                    renderWordCloud();
-                }
-            });
-
-            const wordInput = document.getElementById('word-input');
-            if (wordInput) {
-                wordInput.addEventListener('input', (e) => {
-                    const counter = document.getElementById('char-counter');
-                    if (counter) counter.innerText = `${e.target.value.length}/25`;
-                });
-            }
+            }, 2000);
         });
 
         function saveStateToStorage() {
@@ -385,9 +387,15 @@
         function loadStateFromStorage() {
             const saved = localStorage.getItem('cms_wordcloud_state');
             if (saved) {
-                try { state = JSON.parse(saved); } catch(e){}
+                try { 
+                    const parsed = JSON.parse(saved);
+                    state.events = parsed.events || state.events;
+                    state.activeEventId = parsed.activeEventId || state.activeEventId;
+                    state.selectedDataFolderId = parsed.selectedDataFolderId || state.selectedDataFolderId;
+                } catch(e){}
             }
-            if (!state.selectedDataFolderId) state.selectedDataFolderId = state.activeEventId;
+            const cfUrl = document.getElementById('cf-api-url');
+            if (cfUrl) cfUrl.value = state.cloudflare.apiUrl;
         }
 
         function switchView(viewName) {
@@ -405,7 +413,6 @@
 
             if (viewName === 'presenter') renderWordCloud();
             if (viewName === 'data') renderDataFolderView();
-            if (viewName === 'audience') checkAudienceLockStatus();
         }
 
         function renderAllViews() {
@@ -426,21 +433,6 @@
 
             renderEventsTable();
             renderWordCloud();
-            checkAudienceLockStatus();
-        }
-
-        function checkAudienceLockStatus() {
-            const activeEv = state.events.find(e => e.id === state.activeEventId) || state.events[0];
-            const form = document.getElementById('audience-form');
-            const lockedMsg = document.getElementById('audience-locked-msg');
-
-            if (activeEv && !activeEv.isActive) {
-                if (form) form.classList.add('hidden');
-                if (lockedMsg) lockedMsg.classList.remove('hidden');
-            } else {
-                if (form) form.classList.remove('hidden');
-                if (lockedMsg) lockedMsg.classList.add('hidden');
-            }
         }
 
         function renderWordCloud() {
@@ -456,9 +448,12 @@
             }
 
             const freqs = {};
+            const wordLatestTime = {};
+
             currentResponses.forEach(r => {
                 const w = r.word.trim();
                 freqs[w] = (freqs[w] || 0) + 1;
+                wordLatestTime[w] = r.id; // เก็บ id คำล่าสุด
             });
 
             const sortedWords = Object.entries(freqs).sort((a,b) => b[1] - a[1]);
@@ -475,34 +470,55 @@
                 const color = colorPalette[idx % colorPalette.length];
                 const rotation = rotations[idx % rotations.length];
 
+                // ตรวจสอบว่าเป็นคำเพิ่งเข้ามาใหม่หรือไม่ ( New Word Glow )
+                const isNew = !state.lastResponseIds.has(wordLatestTime[word]);
+                const glowClass = isNew ? 'new-word-glow' : '';
+
                 return `
-                    <span class="word-cloud-item font-extrabold" 
+                    <span class="word-cloud-item ${glowClass} font-extrabold" 
                           style="font-size: ${fontSize}px; color: ${color}; transform: rotate(${rotation}deg); margin: 6px 10px;">
                         ${word}
                     </span>
                 `;
             }).join('');
+
+            // อัปเดตรายการ IDs ล่าสุด
+            currentResponses.forEach(r => state.lastResponseIds.add(r.id));
         }
 
-        function handleAudienceSubmit(e) {
+        async function handleAudienceSubmit(e) {
             e.preventDefault();
             const input = document.getElementById('word-input');
-            const word = input.value.trim();
+            let word = input.value.trim();
             if (!word) return;
+
+            // กรองคำหยาบ (Profanity Filter)
+            const lowerWord = word.toLowerCase();
+            const hasProfanity = profanityList.some(badWord => lowerWord.includes(badWord));
+            if (hasProfanity) {
+                alert('โปรดระบุคำตอบที่สุภาพและเหมาะสมครับ');
+                return;
+            }
 
             const newResp = {
                 id: 'resp-' + Date.now(),
                 eventId: state.activeEventId || 'event-default',
-                word: word,
-                timestamp: new Date().toISOString()
+                word: word
             };
+
+            // บันทึกและยิงขึ้น D1 Cloud
+            if (state.cloudflare.enabled && state.cloudflare.apiUrl) {
+                try {
+                    await fetch(`${state.cloudflare.apiUrl}/api/submit`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(newResp)
+                    });
+                } catch(err){ console.error('Cloud Error', err); }
+            }
 
             state.responses.push(newResp);
             saveStateToStorage();
-            renderWordCloud();
-
-            // กระจายคำตอบไปยังหน้าจอใหญ่ทันที
-            broadcast.postMessage({ type: 'NEW_RESPONSE', payload: newResp });
 
             input.value = '';
             document.getElementById('char-counter').innerText = '0/25';
@@ -514,6 +530,66 @@
             }
 
             if (typeof confetti === 'function') confetti({ particleCount: 40, spread: 60 });
+        }
+
+        async function fetchResponsesFromCloud() {
+            if (!state.cloudflare.enabled || !state.cloudflare.apiUrl) return;
+            try {
+                const targetEventId = state.activeEventId || 'event-default';
+                const res = await fetch(`${state.cloudflare.apiUrl}/api/responses?eventId=${targetEventId}`);
+                
+                if (!res.ok) throw new Error('Network error');
+                
+                const data = await res.json();
+                
+                // สลับสถานะเป็น Online
+                document.getElementById('cloudflare-badge')?.classList.remove('hidden');
+                document.getElementById('offline-badge')?.classList.add('hidden');
+
+                if (data.success && data.responses) {
+                    const otherResponses = state.responses.filter(r => r.eventId !== targetEventId);
+                    const cloudResponses = data.responses.map(r => ({
+                        id: r.id,
+                        eventId: targetEventId,
+                        word: r.word
+                    }));
+                    state.responses = [...otherResponses, ...cloudResponses];
+                    renderWordCloud();
+                }
+            } catch(e){
+                // สลับสถานะเป็น Offline เตือนเน็ตหลุด
+                document.getElementById('cloudflare-badge')?.classList.add('hidden');
+                document.getElementById('offline-badge')?.classList.remove('hidden');
+            }
+        }
+
+        async function clearCurrentResponses() {
+            const activeEv = state.events.find(e => e.id === state.activeEventId);
+            if (!confirm(`คุณแน่ใจหรือไม่ว่าต้องการล้างคำตอบทั้งหมดของกิจกรรม "${activeEv.title}"?`)) return;
+
+            if (state.cloudflare.enabled && state.cloudflare.apiUrl) {
+                try {
+                    await fetch(`${state.cloudflare.apiUrl}/api/clear`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ eventId: state.activeEventId })
+                    });
+                } catch(err){ console.error('Clear Error', err); }
+            }
+
+            state.responses = state.responses.filter(r => r.eventId !== state.activeEventId);
+            state.lastResponseIds.clear();
+            saveStateToStorage();
+            renderWordCloud();
+            alert('ล้างคำตอบของกิจกรรมนี้เรียบร้อยแล้ว!');
+        }
+
+        function saveCloudflareConfig() {
+            const urlInput = document.getElementById('cf-api-url');
+            state.cloudflare.apiUrl = urlInput ? urlInput.value.trim() : '';
+            saveStateToStorage();
+            alert('บันทึกการเชื่อมต่อเรียบร้อยแล้ว!');
+            fetchResponsesFromCloud();
         }
 
         function selectChip(text) {
@@ -530,6 +606,7 @@
             saveStateToStorage();
             renderAllViews();
             initQRCodes();
+            fetchResponsesFromCloud();
         }
 
         function createNewEvent(e) {
@@ -560,30 +637,15 @@
             tbody.innerHTML = state.events.map(e => `
                 <tr class="${e.id === state.activeEventId ? 'bg-cyan-50/60 font-semibold' : ''}">
                     <td class="p-3">
-                        ${e.isActive ? '<span class="px-2.5 py-1 bg-emerald-100 text-emerald-700 font-bold rounded-full text-[10px]">● เปิดรับคำตอบ</span>' : '<span class="px-2.5 py-1 bg-rose-100 text-rose-700 font-bold rounded-full text-[10px]">● ปิดกิจกรรม</span>'}
+                        <span class="px-2.5 py-1 bg-emerald-100 text-emerald-700 font-bold rounded-full text-[10px]">● พร้อมใช้งาน</span>
                     </td>
                     <td class="p-3 font-bold text-slate-800">${e.title}</td>
                     <td class="p-3 text-slate-600">${e.question}</td>
-                    <td class="p-3 text-center">
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" ${e.isActive ? 'checked' : ''} onchange="toggleEventActiveStatus('${e.id}')" class="sr-only peer">
-                            <div class="w-9 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-500"></div>
-                        </label>
-                    </td>
-                    <td class="p-3 text-right space-x-1">
-                        <button onclick="changeActiveEvent('${e.id}')" class="px-2.5 py-1 bg-cms-teal hover:bg-teal-700 text-white font-bold rounded-lg text-[10px]">เลือก</button>
+                    <td class="p-3 text-right">
+                        <button onclick="changeActiveEvent('${e.id}')" class="px-2.5 py-1 bg-cms-teal hover:bg-teal-700 text-white font-bold rounded-lg text-[10px]">เลือกใช้กิจกรรมนี้</button>
                     </td>
                 </tr>
             `).join('');
-        }
-
-        function toggleEventActiveStatus(eventId) {
-            const ev = state.events.find(e => e.id === eventId);
-            if (ev) {
-                ev.isActive = !ev.isActive;
-                saveStateToStorage();
-                renderAllViews();
-            }
         }
 
         function renderDataFolderView() {
@@ -667,22 +729,6 @@
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-        }
-
-        function seedDemoResponses() {
-            const words = ['พร้อมมาก', 'สสอ.เข้มแข็ง', 'ศวกช.ทรงพลัง', 'กรมวิทย์ With You', 'ยกระดับชุมชน', 'นวัตกรรม', 'พัฒนาต่อยอด', 'บูรณาการ', 'คุณภาพชีวิต'];
-            for(let i=0; i<30; i++) {
-                const randomWord = words[Math.floor(Math.random() * words.length)];
-                state.responses.push({
-                    id: 'demo-' + Date.now() + '-' + i,
-                    eventId: state.activeEventId,
-                    word: randomWord,
-                    timestamp: new Date().toISOString()
-                });
-            }
-            saveStateToStorage();
-            renderWordCloud();
-            renderDataFolderView();
         }
 
         function initQRCodes() {
