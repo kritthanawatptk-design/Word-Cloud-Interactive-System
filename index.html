@@ -35,7 +35,6 @@
     <style>
         body { font-family: 'Sarabun', sans-serif; }
         
-        /* 🎨 สไตล์ Word Cloud แบบสุ่ม สนุกสนาน มีมิติ */
         .word-cloud-item {
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             display: inline-block;
@@ -156,7 +155,7 @@
 
                 </div>
 
-                <!-- 🎈 Word Cloud Center Stage (ปรับให้จัดวางแบบสุ่ม สนุกสนาน) -->
+                <!-- Word Cloud Center Stage -->
                 <div id="word-cloud-canvas" class="my-4 flex-1 flex flex-wrap items-center justify-center align-middle content-center relative z-10 px-4 py-6 gap-3 sm:gap-6 overflow-hidden">
                     <p class="text-slate-400 text-sm animate-pulse"><i class="fa-solid fa-spinner fa-spin mr-2"></i>กำลังรอคำตอบจากผู้ร่วมงาน...</p>
                 </div>
@@ -252,7 +251,7 @@
                 <div id="cloudflare-config-panel" class="space-y-3 pt-2">
                     <p class="text-xs text-slate-600">วาง Worker API URL ของคุณเพื่อเปิดใช้ Cloud Sync กับ D1 Database:</p>
                     <div class="flex gap-2">
-                        <input type="text" id="cf-api-url" placeholder="https://falling-salad-55b2.kritthanawat-ptk.workers.dev" class="flex-1 px-3 py-2 border border-slate-300 rounded-lg text-xs font-mono">
+                        <input type="text" id="cf-api-url" placeholder="https://wispy-waterfall-f152.kritthanawat-ptk.workers.dev" class="flex-1 px-3 py-2 border border-slate-300 rounded-lg text-xs font-mono">
                         <button onclick="saveCloudflareConfig()" class="px-4 py-2 bg-cms-navy text-white text-xs font-bold rounded-lg hover:bg-slate-800">
                             บันทึกการเชื่อมต่อ
                         </button>
@@ -390,19 +389,17 @@
             responses: [],
             cloudflare: {
                 enabled: true,
-                apiUrl: 'https://falling-salad-55b2.kritthanawat-ptk.workers.dev'
+                apiUrl: 'https://wispy-waterfall-f152.kritthanawat-ptk.workers.dev'
             }
         };
 
         const broadcast = new BroadcastChannel('cms_wordcloud_channel');
         
-        // 🎨 จานสีนีออน/สดใสสำหรับงานบนจอใหญ่
         const colorPalette = [
             '#00E5FF', '#FFB800', '#FF4081', '#00E676', 
             '#E040FB', '#FF9100', '#76FF03', '#18FFFF'
         ];
 
-        // 🎲 อาเรย์มุมเอียงสุ่มเพื่อสร้างไดนามิก
         const rotations = [-12, -8, -4, 0, 4, 8, 12, -15, 15];
 
         window.addEventListener('DOMContentLoaded', () => {
@@ -439,7 +436,7 @@
                 if (state.cloudflare.enabled && state.cloudflare.apiUrl) {
                     fetchResponsesFromCloud();
                 }
-            }, 3000);
+            }, 2000);
         });
 
         function saveStateToStorage() {
@@ -456,7 +453,7 @@
             const cfToggle = document.getElementById('toggle-cloudflare');
             const cfUrl = document.getElementById('cf-api-url');
             if (cfToggle) cfToggle.checked = state.cloudflare.enabled;
-            if (cfUrl) cfUrl.value = state.cloudflare.apiUrl || '';
+            if (cfUrl) cfUrl.value = state.cloudflare.apiUrl || 'https://wispy-waterfall-f152.kritthanawat-ptk.workers.dev';
             
             updateCloudflareBadge();
         }
@@ -536,7 +533,6 @@
             }
         }
 
-        // 🎈 ปรับอัลกอริทึมการแสดงผล Word Cloud ให้สุ่มขนาด สุ่มมุมเอียง และดูซ้อนกันสนุกสนาน
         function renderWordCloud() {
             const canvas = document.getElementById('word-cloud-canvas');
             if (!canvas) return;
@@ -556,11 +552,9 @@
                 freqs[w] = (freqs[w] || 0) + 1;
             });
 
-            // สลับเรียงคำตอบให้คละกันอย่างเป็นธรรมชาติ (Shuffle)
             const sortedWords = Object.entries(freqs).sort((a,b) => b[1] - a[1]);
             const maxCount = sortedWords[0][1];
 
-            // สลับตำแหน่งการวางคำตอบ (Interleave/Shuffle) เพื่อให้คำใหญ่กระจายทั่วจอ ไม่กองที่จุดเดียว
             const shuffledWords = [...sortedWords];
             for (let i = shuffledWords.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
@@ -568,10 +562,8 @@
             }
 
             canvas.innerHTML = shuffledWords.map(([word, count], idx) => {
-                // คำนวณขนาด Font ยืดหยุ่นตั้งแต่ 22px ถึง 76px
                 const fontSize = Math.min(76, Math.max(22, 22 + (count / maxCount) * 54));
                 
-                // สุ่มสี มุมเอียง และ Padding/Margin แบบมีไดนามิก
                 const color = colorPalette[idx % colorPalette.length];
                 const rotation = rotations[idx % rotations.length];
                 const marginY = Math.floor(Math.random() * 8) + 2;
@@ -605,15 +597,18 @@
 
             const newResp = {
                 id: 'resp-' + Date.now(),
-                eventId: state.activeEventId,
+                eventId: state.activeEventId || 'event-default',
                 word: word,
                 timestamp: new Date().toISOString()
             };
 
+            // อัปเดตฝั่ง client ทันที
             state.responses.push(newResp);
             saveStateToStorage();
+            renderWordCloud();
             broadcast.postMessage({ type: 'NEW_RESPONSE', payload: newResp });
 
+            // ส่งข้อมูลไปยัง Cloudflare D1
             if (state.cloudflare.enabled && state.cloudflare.apiUrl) {
                 try {
                     await fetch(`${state.cloudflare.apiUrl}/api/submit`, {
@@ -717,13 +712,14 @@
         async function fetchResponsesFromCloud() {
             if (!state.cloudflare.enabled || !state.cloudflare.apiUrl) return;
             try {
-                const res = await fetch(`${state.cloudflare.apiUrl}/api/responses?eventId=${state.activeEventId}`);
+                const targetEventId = state.activeEventId || 'event-default';
+                const res = await fetch(`${state.cloudflare.apiUrl}/api/responses?eventId=${targetEventId}`);
                 const data = await res.json();
                 if (data.success && data.responses) {
-                    const otherResponses = state.responses.filter(r => r.eventId !== state.activeEventId);
+                    const otherResponses = state.responses.filter(r => r.eventId !== targetEventId);
                     const cloudResponses = data.responses.map(r => ({
                         id: r.id,
-                        eventId: state.activeEventId,
+                        eventId: targetEventId,
                         word: r.word,
                         timestamp: r.submitted_at
                     }));
@@ -748,6 +744,7 @@
             saveStateToStorage();
             renderAllViews();
             initQRCodes();
+            fetchResponsesFromCloud();
         }
 
         function createNewEvent(e) {
